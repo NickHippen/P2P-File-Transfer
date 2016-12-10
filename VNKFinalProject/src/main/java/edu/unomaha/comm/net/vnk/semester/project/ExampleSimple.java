@@ -1,6 +1,11 @@
 package edu.unomaha.comm.net.vnk.semester.project;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import net.tomp2p.futures.FutureBootstrap;
@@ -24,14 +29,8 @@ public class ExampleSimple {
 	}
 
 	public static void main(String[] args) throws NumberFormatException, Exception {
-//		args = new String[] { "1", "test.me", "Hello from peer 1" };
-//		args = new String[] { "2", "test.me" };
-//		args = new String[] { "3", "test.me" };
-//		args = new String[] { "3", "test.me.2", "Hello from peer 3" };
-//		args = new String[] { "4", "test.me.2" };
-//		args = new String[] { "5", "test.me.2" };
-//		args = new String[] { "6", "test.me" };
-		args = new String[] { "7", "test.me.2" };
+//		args = new String[] { "1", "file-key", "super-secret-file.txt" };
+		args = new String[] { "2", "file-key" };
 		System.out.println("Peer ID: " + args[0]);
 		ExampleSimple dns = new ExampleSimple(Integer.parseInt(args[0]));
 		if (args.length == 3) {
@@ -39,27 +38,33 @@ public class ExampleSimple {
 			dns.peer.broadcast(Number160.createHash(args[1]));
 		}
 		if (args.length == 2) {
-			Message message = dns.get(args[1]);
-			System.out.println("Name: " + args[1] + "\nMessage: " + message);
-			dns.store(args[1], message.getMessage());
+			System.out.println(dns.get(args[1]));
+//			System.out.println("Name: " + args[1] + "\nMessage: " + message);
 		}
 		System.out.println("Type anything to leave the network.");
 		new Scanner(System.in).nextLine();
 		dns.peer.shutdown();
 	}
 
-	private Message get(String name) throws ClassNotFoundException, IOException {
+	private boolean get(String name) throws ClassNotFoundException, IOException {
 		FutureDHT futureDHT = peer.get(Number160.createHash(name)).start();
 		futureDHT.awaitUninterruptibly();
 		if (futureDHT.isSuccess()) {
-			return ((Message) futureDHT.getData().getObject());
+			FileOutputStream fos = new FileOutputStream("transferred-file.txt");
+			System.out.println("Received: " + Arrays.toString(futureDHT.getData().getData()));
+			fos.write(futureDHT.getData().getData());
+			fos.close();
+			return true;
 		}
 		System.out.println("Unable to get key!");
-		return null;
+		return false;
 	}
 
-	private void store(String name, String message) throws IOException {
-		peer.put(Number160.createHash(name)).setData(new Data(new Message(message))).start().awaitUninterruptibly();
+	private void store(String name, String fileName) throws IOException {
+		Path path = Paths.get(fileName);
+		byte[] data = Files.readAllBytes(path);
+		System.out.println("Putting: " + Arrays.toString(data));
+		peer.put(Number160.createHash(name)).setData(new Data(data)).start().awaitUninterruptibly();
 	}
 
 }
