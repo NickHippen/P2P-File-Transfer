@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * The base runner class of VNKP2P
+ * @author Nick hippen
+ *
+ */
 public class P2PRunner {
 
 	private static Scanner input;
@@ -22,6 +27,9 @@ public class P2PRunner {
 		"[2] Generate random key"
 	});
 	
+	/**
+	 * Sets up the menu options
+	 */
 	static {
 		// Main Menu
 		// Store File
@@ -103,6 +111,7 @@ public class P2PRunner {
 		System.out.print("Enter the port you would like to connect to or enter -1 to be the first peer in the network: ");
 		int connectionPort = input.nextInt();
 		if (connectionPort == -1) {
+			// "Connect" to itself
 			connectionPort = port;
 		}
 		System.out.println((port == connectionPort ? "Creating" : "Joining") + " network...");
