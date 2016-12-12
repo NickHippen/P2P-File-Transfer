@@ -4,3 +4,6 @@ A compiled version of the program is provided in this directory named "VNKP2P.ja
 into the jar.
 The jar file can be run through the bat file called startup.bat or by running the jar file through the command line.
 The jar file can be run on command line with the command "java -jar VNKP2P.jar".
+
+When referencing a file, it will be originated from the root project folder. Downloaded files will be placed in "./downloads"
+under the same name as the original file.
